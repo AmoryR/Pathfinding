@@ -1,0 +1,36 @@
+$cell-size: 30px;
+
+// Pathfinding grid
+#pathfinding-grid {
+
+    margin: auto;
+    width: $cell-size * 16;
+    // height: 800px;
+
+    background-color: gray;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+
+    // GRID STYLES
+    .grid-cell {
+        width: $cell-size;
+        height: $cell-size;
+
+        background-color: white;
+        border: 1px solid black;
+    }
+
+    .start {
+        background-color: green;
+    }
+
+    .end {
+        background-color: blue;
+    }
+
+    .wall {
+        background-color: black;
+    }
+
+}

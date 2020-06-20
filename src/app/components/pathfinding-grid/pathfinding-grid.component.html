@@ -1,0 +1,11 @@
+<div id="pathfinding-grid">
+
+    <div class="grid-cell" *ngFor="let cell of grid.cells" (click)="onSelectCell(cell)"
+        [ngClass]="{
+            'start': cell.type == 'start',
+            'end': cell.type == 'end',
+            'wall': cell.type == 'wall'
+        }"
+    ></div>
+
+</div>
