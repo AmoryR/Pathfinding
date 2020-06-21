@@ -4,6 +4,7 @@ $cell-size: 30px;
 #pathfinding-grid {
 
     margin: auto;
+    margin-bottom: 15px;
     width: $cell-size * 16;
     // height: 800px;
 
@@ -31,6 +32,10 @@ $cell-size: 30px;
 
     .wall {
         background-color: black;
+    }
+
+    .path {
+        background-color: yellow;
     }
 
 }

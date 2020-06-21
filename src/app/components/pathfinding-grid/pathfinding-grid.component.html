@@ -4,8 +4,14 @@
         [ngClass]="{
             'start': cell.type == 'start',
             'end': cell.type == 'end',
-            'wall': cell.type == 'wall'
+            'wall': cell.type == 'wall',
+            'path': cell.type == 'path'
         }"
     ></div>
 
 </div>
+
+<div class="center">
+    <button mat-raised-button color="accent" (click)="onStartPathfindingAlgorithme()">Start</button>
+</div>
+    

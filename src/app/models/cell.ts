@@ -3,6 +3,7 @@ export enum CellType {
     start = "start",
     end = "end",
     wall = "wall",
+    path = "path",
     empty = "empty"
 }
 
