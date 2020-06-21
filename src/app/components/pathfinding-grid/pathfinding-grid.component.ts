@@ -40,7 +40,10 @@ export class PathfindingGridComponent implements OnInit {
 		if (cell.type == "start" || cell.type == "end")
 			return;
 		
-		cell.type = CellType.wall;
+		if (cell.type == "wall")
+			cell.type = CellType.empty;
+		else
+			cell.type = CellType.wall;
 		
 	}
 
