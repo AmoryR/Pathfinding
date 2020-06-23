@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
+import { interval, Subject, Subscription, Observable } from 'rxjs';
 
 import { Grid } from '../models/grid';
 import { Point } from '../models/point';
 import { DijkstraGrid } from '../models/dijkstra/dijkstra-grid';
 import { DijkstraCell } from '../models/dijkstra/dijkstra-cell';
+import { PathfindingStatus, DijkstraResponse } from '../models/dijkstra/dijkstra-response';
 
 @Injectable({
   	providedIn: 'root'
@@ -17,17 +19,29 @@ export class PathfindingService {
 	// ----------------------------------------------------------------------------
 
 	/**
-	 * Get path from dijkstra algorithm
+	 * Dijkstra properties
+	 */
+	dijkstraStepper: Observable<number>;
+	dijkstraResponse: DijkstraResponse;
+	dijkstraSubject = new Subject<DijkstraResponse>();
+
+	/**
+	 * Emit disjkstra response
+	 */
+	private emitDijkstraReponse() {
+		this.dijkstraSubject.next(this.dijkstraResponse);
+	}
+
+	/**
+	 * Get dijkstra solution
 	 * 
 	 * @param {Grid} grid 
+	 * @param {DijkstraGrid} dijkstraGrid 
 	 * 
-	 * @returns List of point that corresponds to path
+	 * @returns Path solution as a list of Point
 	 */
-	private getPathFromDijkstraAlgorithm(grid: Grid) : Point[] {
-		
-		/* SOLVE WITH DIJKSTRA'S ALGORITHM */
-		let dijkstraGrid = this.dijkstra(grid);
-		
+	private getDijkstraSolution(grid: Grid, dijkstraGrid: DijkstraGrid) : Point[] {
+
 		/* GET PATH COORDINATES FROM DIJKSTRA GRID */
 		let endCoordinates = grid.getEndCoordinates();
 
@@ -42,17 +56,13 @@ export class PathfindingService {
 		}
 
 		return coordinatesList;
-
 	}
 
 	/**
-	 * Dijkstra algorithm
-	 * 
-	 * @param {Grid} grid
-	 * 
-	 * @returns DijkstraGrid solved by Dijkstra's algorithm
+	 * Start dijkstra algorithm
+	 * @param {Grid} grid 
 	 */
-	private dijkstra(grid: Grid) : DijkstraGrid {
+	startDijkstra(grid: Grid) {
 
 		/* SETUP */
 		var dijkstraGrid = new DijkstraGrid(grid.width, grid.height, grid);
@@ -71,13 +81,18 @@ export class PathfindingService {
 		let sourceCoordinates = grid.getStartCoordinates();
 		dijkstraGrid.getCellFor(sourceCoordinates.x, sourceCoordinates.y).dist = 0;
 
+		this.dijkstraResponse = new DijkstraResponse(PathfindingStatus.inProgress, dijkstraGrid, []);
+		this.emitDijkstraReponse();
+
 		/* ALGORITHM LOOP */
 		var currentCell = new DijkstraCell();
-		var i = 0;
-		while (i < 255) { // Find how to stop the loop
-			
-			currentCell = dijkstraGrid.minimunDistanceCell();
 
+		this.dijkstraStepper = interval(10);
+		var step = this.dijkstraStepper.subscribe(() => {
+
+			// Run one step
+			currentCell = dijkstraGrid.minimunDistanceCell();
+	
 			let neighbors = dijkstraGrid.getNeighborsOf(currentCell);
 			
 			neighbors.forEach((neighbour: DijkstraCell) => {
@@ -93,11 +108,22 @@ export class PathfindingService {
 			
 			currentCell.visited = true;
 
-			i++;
+			// Emit updates
+			if (grid.getCellFor(currentCell.x, currentCell.y).type == "end") {
+				this.dijkstraResponse.status = PathfindingStatus.done;
+				this.dijkstraResponse.grid = dijkstraGrid;
+				this.dijkstraResponse.solution = this.getDijkstraSolution(grid, dijkstraGrid);
+				this.emitDijkstraReponse();
 
-		}
+				step.unsubscribe();
+			} else {
+				this.dijkstraResponse.status = PathfindingStatus.inProgress;
+				this.dijkstraResponse.grid = dijkstraGrid;
+				this.dijkstraResponse.solution = []; // Compute solution
+				this.emitDijkstraReponse();
+			}
 
-		return dijkstraGrid;
+		});
 
 	}
 	  
@@ -113,19 +139,15 @@ export class PathfindingService {
 	 * 
 	 * @returns List of points solved by a pathfinding algorithm
 	 */
-	start(algorithm: string, grid: Grid) : Point[] {
-
-		let pathList: Point[] = [];
+	start(algorithm: string, grid: Grid) {
 
 		switch (algorithm) {
 			case "dijkstra":
-				pathList = this.getPathFromDijkstraAlgorithm(grid);
+				this.startDijkstra(grid);
 				break;
 			default: 
 				console.log("Can't find algorithm for name : " + algorithm);
 		}
-
-		return pathList;
 
 	}
 }

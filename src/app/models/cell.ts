@@ -4,6 +4,7 @@ export enum CellType {
     end = "end",
     wall = "wall",
     path = "path",
+    visited = "visited",
     empty = "empty"
 }
 

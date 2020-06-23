@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
 
 import { Grid } from 'src/app/models/grid';
 import { Cell, CellType } from 'src/app/models/cell';
+import { PathfindingStatus, DijkstraResponse } from 'src/app/models/dijkstra/dijkstra-response'; 
 
 import { PathfindingService } from 'src/app/services/pathfinding.service';
+import { DijkstraCell } from 'src/app/models/dijkstra/dijkstra-cell';
 
 @Component({
 	selector: 'pathfinding-grid',
@@ -13,6 +16,8 @@ import { PathfindingService } from 'src/app/services/pathfinding.service';
 export class PathfindingGridComponent implements OnInit {
 
 	grid: Grid;
+
+	dijkstraSubscription: Subscription;
 
 	constructor(
 		private _pathfindingService: PathfindingService
@@ -55,18 +60,61 @@ export class PathfindingGridComponent implements OnInit {
 
 		if (this.state == "ready") {
 
-			let list = this._pathfindingService.start("dijkstra", this.grid);
+			this.dijkstraSubscription = this._pathfindingService.dijkstraSubject.subscribe((dijkstraResponse: DijkstraResponse) => {
+				
+				if (dijkstraResponse.status == PathfindingStatus.done) {
+
+					if (dijkstraResponse.solution.length == 0) {
+						console.log("This is not normal I think")
+						return;
+					}
+
+					dijkstraResponse.solution.forEach(element => {
 	
-			list.forEach(element => {
+						let cell = this.grid.getCellFor(element.x, element.y);
+						if (cell.type != "start" && cell.type != "end") {
+			
+							cell.type = CellType.path;
+						}
+					});
+
+					this.state = "done";
+
+				} else {
+
+					for (var y = 0; y < dijkstraResponse.grid.height; y++) {
+
+						for (var x = 0; x < dijkstraResponse.grid.width; x++) {
+			
+							let currentCell: DijkstraCell = dijkstraResponse.grid.getCellFor(x, y);
+			
+							if (currentCell.visited) {
+								var gridCell = this.grid.getCellFor(x, y);
 	
-				let cell = this.grid.getCellFor(element.x, element.y);
-				if (cell.type != "start" && cell.type != "end") {
-	
-					cell.type = CellType.path;
+								if (gridCell.type != "start" && gridCell.type != "end" && gridCell.type != "wall") {
+									this.grid.getCellFor(x, y).type = CellType.visited;
+								}
+							}
+						}
+			
+					}
+
 				}
+
 			});
 
-			this.state = "done";
+			this._pathfindingService.start("dijkstra", this.grid);
+	
+			// list.forEach(element => {
+	
+			// 	let cell = this.grid.getCellFor(element.x, element.y);
+			// 	if (cell.type != "start" && cell.type != "end") {
+	
+			// 		cell.type = CellType.path;
+			// 	}
+			// });
+
+			// this.state = "done";
 		} else if (this.state == "done") {
 
 			this.grid.cells.forEach((cell: Cell) => {
