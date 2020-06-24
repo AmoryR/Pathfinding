@@ -1,6 +1,10 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule } from '@angular/material/dialog';
+
+import { TemplatesDialogComponent } from '../templates-dialog/templates-dialog.component';
+import { TemplatesDialogModule } from '../templates-dialog/templates-dialog.module';
 
 import { PathfindingGridComponent } from './pathfinding-grid.component';
 
@@ -11,11 +15,17 @@ import { PathfindingGridComponent } from './pathfinding-grid.component';
 	imports: [
 		CommonModule,
 
+		TemplatesDialogModule,
+
 		// Material
-		MatButtonModule
+		MatButtonModule,
+		MatDialogModule
 	],
 	exports: [
 		PathfindingGridComponent
+	],
+	entryComponents: [
+		TemplatesDialogComponent
 	]
 })
 export class PathfindingGridModule { }

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ToolsbarService } from 'src/app/services/toolsbar.service';
 
 @Component({
 	selector: 'toolsbar',
@@ -7,9 +8,17 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ToolsbarComponent implements OnInit {
 
-	constructor() { }
+	
+
+	constructor(
+		private _toolsbarService: ToolsbarService
+	) { }
 
 	ngOnInit() {
+	}
+
+	onSelectTemplate() {
+		this._toolsbarService.emitSelectTemplateSubject();
 	}
 
 }

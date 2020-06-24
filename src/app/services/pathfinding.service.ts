@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { interval, Subject, Subscription, Observable } from 'rxjs';
+import { interval, Subject, Observable } from 'rxjs';
 
 import { Grid } from '../models/grid';
 import { Point } from '../models/point';
