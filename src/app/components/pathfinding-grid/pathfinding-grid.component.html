@@ -1,18 +1,21 @@
-<div id="pathfinding-grid">
+<div id="pathfinding-grid-container"> 
 
-    <div class="grid-cell" *ngFor="let cell of grid.cells" (click)="onSelectCell(cell)"
-        [ngClass]="{
-            'start': cell.type == 'start',
-            'end': cell.type == 'end',
-            'wall': cell.type == 'wall',
-            'path': cell.type == 'path',
-            'visited': cell.type == 'visited'
-        }"
-    ></div>
+    <div id="pathfinding-grid" (mousedown)="mouseDown($event)" (mousemove)="mouseMove($event)" (mouseup)="mouseUp($event)">
+
+        <div class="grid-cell" *ngFor="let cell of grid.cells">
+            <div class="start" *ngIf="cell.type == 'start'" @startEndAnimation></div>
+            <div class="end" *ngIf="cell.type == 'end'" @startEndAnimation></div>
+            <div class="wall" *ngIf="cell.type == 'wall'" @wallAnimation></div>
+            <div class="path" *ngIf="cell.type == 'path'" @pathAnimation></div>
+            <div class="visited" *ngIf="cell.type == 'visited'" @visitedAnimation></div>
+        </div>
+
+    </div>
 
 </div>
 
 <div class="center">
-    <button mat-raised-button color="accent" (click)="onStartPathfindingAlgorithme()">Start</button>
+    <button mat-raised-button color="accent" *ngIf="state == 'not-started'" (click)="onStartPathfindingAlgorithme()">Start</button>
+    <button mat-raised-button color="accent" *ngIf="state == 'done'" (click)="onClearGrid()">Clear</button>
 </div>
     

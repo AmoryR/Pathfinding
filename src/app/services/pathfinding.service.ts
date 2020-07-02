@@ -87,7 +87,7 @@ export class PathfindingService {
 		/* ALGORITHM LOOP */
 		var currentCell = new DijkstraCell();
 
-		this.dijkstraStepper = interval(10);
+		this.dijkstraStepper = interval(5);
 		var step = this.dijkstraStepper.subscribe(() => {
 
 			// Run one step
@@ -119,7 +119,7 @@ export class PathfindingService {
 			} else {
 				this.dijkstraResponse.status = PathfindingStatus.inProgress;
 				this.dijkstraResponse.grid = dijkstraGrid;
-				this.dijkstraResponse.solution = []; // Compute solution
+				this.dijkstraResponse.solution = [];
 				this.emitDijkstraReponse();
 			}
 
