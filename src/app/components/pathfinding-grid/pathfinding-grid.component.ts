@@ -8,12 +8,14 @@ import { Grid } from 'src/app/models/grid';
 import { Cell, CellType } from 'src/app/models/cell';
 import { PathfindingStatus, DijkstraResponse } from 'src/app/models/dijkstra/dijkstra-response'; 
 import { DijkstraCell } from 'src/app/models/dijkstra/dijkstra-cell';
+import { Point } from 'src/app/models/point';
 
 import { TemplatesDialogComponent } from '../templates-dialog/templates-dialog.component';
+import { AlgorithmDialogComponent } from '../algorithm-dialog/algorithm-dialog.component';
+import { InfoDialogComponent } from '../info-dialog/info-dialog.component';
 
 import { PathfindingService } from 'src/app/services/pathfinding.service';
 import { ToolsbarService } from 'src/app/services/toolsbar.service';
-import { Point } from 'src/app/models/point';
 
 @Component({
 	selector: 'pathfinding-grid',
@@ -89,6 +91,8 @@ export class PathfindingGridComponent implements OnInit {
 	 * Tools bar subscription
 	 */
 	selectTemplatesSubscription: Subscription;
+	selectAlgorithmSubscription: Subscription;
+	showInfoSubscription: Subscription;
 
 	cellSize = 20; // $cell-size
 	widthGrid: number = 0;
@@ -113,10 +117,21 @@ export class PathfindingGridComponent implements OnInit {
 		 */
 
 		this.selectTemplatesSubscription = this._toolsbarService.selectTemplateSubject.subscribe(() => {
-			// this.openTemplatesDialog();
+			this.openTemplatesDialog();
 		});
 
-		this.widthGrid = 48;
+		this.selectAlgorithmSubscription = this._toolsbarService.selectAlgorithmSubject.subscribe(() => {
+			this.openAlgorithmDialog();
+		});
+
+		this.showInfoSubscription = this._toolsbarService.showInfoSubject.subscribe(() => {
+			this.openInfoDialog();
+		});
+
+		/**
+		 * Component initialization
+		 */
+		this.widthGrid = 38;
 		this.heightGrid = 32;
 
 		this.grid = new Grid(this.widthGrid, this.heightGrid);
@@ -145,11 +160,53 @@ export class PathfindingGridComponent implements OnInit {
 
 		// Close dialog
 		dialogRef.afterClosed().subscribe((grid: Grid) => {
-			if (!grid){
-				return;
+
+			if (grid) {
+				this.grid = grid;
 			}
 
-			this.grid = grid;
+		});
+
+	}
+
+	/**
+	 * Open algorithm dialog
+	 */
+	private openAlgorithmDialog() {
+
+		// Open dialog 
+		const dialogRef = this._matDialog.open(AlgorithmDialogComponent, {
+			width: '800px'
+		});
+
+		// Close dialog
+		dialogRef.afterClosed().subscribe(() => {
+
+			if (true) {
+				
+			}
+
+		});
+
+	}
+
+	/**
+	 * Open info dialog
+	 */
+	private openInfoDialog() {
+
+		// Open dialog 
+		const dialogRef = this._matDialog.open(InfoDialogComponent, {
+			width: '800px'
+		});
+
+		// Close dialog
+		dialogRef.afterClosed().subscribe(() => {
+
+			if (true) {
+				
+			}
+
 		});
 
 	}

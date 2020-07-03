@@ -6,6 +6,12 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { TemplatesDialogComponent } from '../templates-dialog/templates-dialog.component';
 import { TemplatesDialogModule } from '../templates-dialog/templates-dialog.module';
 
+import { AlgorithmDialogComponent } from '../algorithm-dialog/algorithm-dialog.component';
+import { AlgorithmDialogModule } from '../algorithm-dialog/algorithm-dialog.module';
+
+import { InfoDialogComponent } from '../info-dialog/info-dialog.component';
+import { InfoDialogModule } from '../info-dialog/info-dialog.module';
+
 import { PathfindingGridComponent } from './pathfinding-grid.component';
 
 @NgModule({
@@ -16,6 +22,8 @@ import { PathfindingGridComponent } from './pathfinding-grid.component';
 		CommonModule,
 
 		TemplatesDialogModule,
+		AlgorithmDialogModule,
+		InfoDialogModule,
 
 		// Material
 		MatButtonModule,
@@ -25,7 +33,9 @@ import { PathfindingGridComponent } from './pathfinding-grid.component';
 		PathfindingGridComponent
 	],
 	entryComponents: [
-		TemplatesDialogComponent
+		TemplatesDialogComponent,
+		AlgorithmDialogComponent,
+		InfoDialogComponent
 	]
 })
 export class PathfindingGridModule { }

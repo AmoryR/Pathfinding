@@ -1,6 +1,6 @@
 <div id="pathfinding-grid-container"> 
 
-    <div id="pathfinding-grid" (mousedown)="mouseDown($event)" (mousemove)="mouseMove($event)" (mouseup)="mouseUp($event)">
+    <div id="pathfinding-grid" (mousedown)="mouseDown($event)" (mousemove)="mouseMove($event)" (mouseup)="mouseUp($event)" (mouseleave)="mouseUp($event)">
 
         <div class="grid-cell" *ngFor="let cell of grid.cells">
             <div class="start" *ngIf="cell.type == 'start'" @startEndAnimation></div>

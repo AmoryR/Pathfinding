@@ -8,17 +8,33 @@ import { ToolsbarService } from 'src/app/services/toolsbar.service';
 })
 export class ToolsbarComponent implements OnInit {
 
-	
-
 	constructor(
 		private _toolsbarService: ToolsbarService
-	) { }
+	) { 
+	}
 
 	ngOnInit() {
 	}
 
+	/**
+	 * Select algorithm
+	 */
+	onSelectAlgorithm() {
+		this._toolsbarService.emitSelectAlgorithmSubject();
+	}
+
+	/**
+	 * Select template
+	 */
 	onSelectTemplate() {
 		this._toolsbarService.emitSelectTemplateSubject();
+	}
+
+	/**
+	 * Show info
+	 */
+	onShowInfo() {
+		this._toolsbarService.emitShowInfoSubject();
 	}
 
 }

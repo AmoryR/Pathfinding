@@ -10,7 +10,7 @@ import { PathfindingGridModule } from './components/pathfinding-grid/pathfinding
 
 @NgModule({
 	declarations: [
-		AppComponent
+		AppComponent,
 	],
 	imports: [
 		BrowserModule,
