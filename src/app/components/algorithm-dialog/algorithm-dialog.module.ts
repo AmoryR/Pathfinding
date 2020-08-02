@@ -1,5 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatGridListModule } from '@angular/material/grid-list';
 
 import { AlgorithmDialogComponent } from './algorithm-dialog.component';
 
@@ -8,7 +10,11 @@ import { AlgorithmDialogComponent } from './algorithm-dialog.component';
 		AlgorithmDialogComponent
 	],
 	imports: [
-		CommonModule
+		CommonModule,
+
+		// Material
+		MatButtonModule,
+		MatGridListModule
 	],
 	exports: [
 		AlgorithmDialogComponent

@@ -1,4 +1,4 @@
-import { Component, OnInit, Renderer2 } from '@angular/core';
+import { Component, OnInit, Renderer2, Host, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
 
@@ -9,10 +9,7 @@ import { Cell, CellType } from 'src/app/models/cell';
 import { PathfindingStatus, DijkstraResponse } from 'src/app/models/dijkstra/dijkstra-response'; 
 import { DijkstraCell } from 'src/app/models/dijkstra/dijkstra-cell';
 import { Point } from 'src/app/models/point';
-
-import { TemplatesDialogComponent } from '../templates-dialog/templates-dialog.component';
-import { AlgorithmDialogComponent } from '../algorithm-dialog/algorithm-dialog.component';
-import { InfoDialogComponent } from '../info-dialog/info-dialog.component';
+import { PathfindingResponse } from 'src/app/models/pathfinding';
 
 import { PathfindingService } from 'src/app/services/pathfinding.service';
 import { ToolsbarService } from 'src/app/services/toolsbar.service';
@@ -87,6 +84,9 @@ import { ToolsbarService } from 'src/app/services/toolsbar.service';
 })
 export class PathfindingGridComponent implements OnInit {
 
+	@Input() width: number;
+	@Input() height: number;
+
 	/**
 	 * Tools bar subscription
 	 */
@@ -95,121 +95,46 @@ export class PathfindingGridComponent implements OnInit {
 	showInfoSubscription: Subscription;
 
 	cellSize = 20; // $cell-size
-	widthGrid: number = 0;
-	heightGrid: number = 0;
 	grid: Grid;
 	gridElementReference: HTMLElement;
 	state: string = ""; // not-started | in-progress | done
 
+	selectedAlgorithm: string = "";
 	dijkstraSubscription: Subscription;
+	astarSubscription: Subscription;
 
 	constructor(
 		private _matDialog: MatDialog,
 		private _renderer: Renderer2,
 		private _pathfindingService: PathfindingService,
 		private _toolsbarService: ToolsbarService
-	) { }
+	) {}
 
 	ngOnInit() {
 
 		/**
-		 * Tools bar subscription
-		 */
-
-		this.selectTemplatesSubscription = this._toolsbarService.selectTemplateSubject.subscribe(() => {
-			this.openTemplatesDialog();
-		});
-
-		this.selectAlgorithmSubscription = this._toolsbarService.selectAlgorithmSubject.subscribe(() => {
-			this.openAlgorithmDialog();
-		});
-
-		this.showInfoSubscription = this._toolsbarService.showInfoSubject.subscribe(() => {
-			this.openInfoDialog();
-		});
-
-		/**
 		 * Component initialization
 		 */
-		this.widthGrid = 38;
-		this.heightGrid = 32;
 
-		this.grid = new Grid(this.widthGrid, this.heightGrid);
-		this.grid.getCellFor(1, 1).type = CellType.start;
-		this.grid.getCellFor(this.widthGrid - 2, this.heightGrid - 2).type = CellType.end;
+		if (this.width == undefined || this.height == undefined) {
+			return;
+		}
+		
+		this.grid = new Grid(this.width, this.height);
+		this.grid.getCellFor(5, Math.floor(this.height / 2)).type = CellType.start;
+		this.grid.getCellFor(this.width - 6, Math.floor(this.height / 2)).type = CellType.end;
 
 		this.gridElementReference = document.getElementById("pathfinding-grid");
-		this._renderer.setStyle(this.gridElementReference, "grid-template-columns", "repeat(" + this.widthGrid + ", " + this.cellSize + "px)");
+		this._renderer.setStyle(this.gridElementReference, "grid-template-columns", "repeat(" + this.width + ", " + this.cellSize + "px)");
 
 		this.state = "not-started";
+
 	}
 
 	// ----------------------------------------------------------------------------
 	// @ Private methods
 	// ----------------------------------------------------------------------------
 
-	/**
-	 * Open templates dialog
-	 */
-	private openTemplatesDialog() {
-
-		// Open dialog
-		const dialogRef = this._matDialog.open(TemplatesDialogComponent, {
-			width: '800px'
-		});
-
-		// Close dialog
-		dialogRef.afterClosed().subscribe((grid: Grid) => {
-
-			if (grid) {
-				this.grid = grid;
-			}
-
-		});
-
-	}
-
-	/**
-	 * Open algorithm dialog
-	 */
-	private openAlgorithmDialog() {
-
-		// Open dialog 
-		const dialogRef = this._matDialog.open(AlgorithmDialogComponent, {
-			width: '800px'
-		});
-
-		// Close dialog
-		dialogRef.afterClosed().subscribe(() => {
-
-			if (true) {
-				
-			}
-
-		});
-
-	}
-
-	/**
-	 * Open info dialog
-	 */
-	private openInfoDialog() {
-
-		// Open dialog 
-		const dialogRef = this._matDialog.open(InfoDialogComponent, {
-			width: '800px'
-		});
-
-		// Close dialog
-		dialogRef.afterClosed().subscribe(() => {
-
-			if (true) {
-				
-			}
-
-		});
-
-	}
 
 	// ----------------------------------------------------------------------------
 	// @ Grid methods
@@ -359,79 +284,52 @@ export class PathfindingGridComponent implements OnInit {
 	/**
 	 * Start path finding algorithme
 	 */
-	onStartPathfindingAlgorithme() {
+	startPathfindingAlgorithme() {
 
 		if (this.state == "not-started") {
+			let pathfindingResponse = this._pathfindingService.start(this.grid);
 
-			this.dijkstraSubscription = this._pathfindingService.dijkstraSubject.subscribe((dijkstraResponse: DijkstraResponse) => {
-				
-				/* DONE SO I GET THE DIJKSTRA SOLUTION */
-				if (dijkstraResponse.status == PathfindingStatus.done) {
+			// Run animation for visited then solution;
+			if (pathfindingResponse.solutionCells.length != 0) {
 
-					if (dijkstraResponse.solution.length == 0) {
-						console.log("This is not normal I think")
-						return;
+				for (var i = 0; i < pathfindingResponse.solutionCells.length; i++) {
+					let cell = this.grid.getCellFor(pathfindingResponse.solutionCells[i].x, pathfindingResponse.solutionCells[i].y);
+					if (cell.type != "start" && cell.type != "end") {
+						cell.type = CellType.path;
 					}
-
-					this.revealPathSolution(dijkstraResponse.solution);
-
-				/* SHOW VISITED CELLS */
-				} else {
-
-					for (var y = 0; y < dijkstraResponse.grid.height; y++) {
-
-						for (var x = 0; x < dijkstraResponse.grid.width; x++) {
-			
-							let currentCell: DijkstraCell = dijkstraResponse.grid.getCellFor(x, y);
-			
-							if (currentCell.visited) {
-								var gridCell = this.grid.getCellFor(x, y);
-	
-								if (gridCell.type != "start" && gridCell.type != "end" && gridCell.type != "wall") {
-									this.grid.getCellFor(x, y).type = CellType.visited;
-								}
-							}
-						}
-			
-					}
-
 				}
 
-			});
-
-			this.state = "in-progress";
-			this._pathfindingService.start("dijkstra", this.grid);
-
+				this.state = 'done';
+			}
+		} else if (this.state == 'done') {
+			this.grid.cells.forEach((cell: Cell) => {
+				cell.type = CellType.empty;
+			})
+	
+			this.grid.getCellFor(1, 1).type = CellType.start;
+			this.grid.getCellFor(this.width - 2, this.height - 2).type = CellType.end;
+	
+			this.state = "not-started";
 		}
 
 	}
 
 	/**
-	 * Reveal path solution on grid
+	 * Animate visited cells
 	 * 
-	 * @param {Point[]} solution 
+	 * @param visitedCells 
 	 */
-	revealPathSolution(solution: Point[]) {
+	animateVisitedCells(visitedCells: Point[]) {
+		console.log("Animate visited: ", visitedCells);
+	}
 
-		let solutionLength = solution.length;
-		let solutionIndex = solutionLength - 1;
-
-		let interval = setInterval(() => {
-
-			let cell = this.grid.getCellFor(solution[solutionIndex].x, solution[solutionIndex].y);
-			if (cell.type != "start" && cell.type != "end") {
-				cell.type = CellType.path;
-			}
-
-			solutionIndex--;
-
-			if (solutionIndex == 0) {
-				this.state = "done";
-				clearInterval(interval);
-			}
-
-		}, 100);
-
+	/**
+	 * Animate solution cells
+	 * 
+	 * @param solutionCells 
+	 */
+	animateSolutionCells(solutionCells: Point[]) {
+		console.log("Animate solution: ", solutionCells);
 	}
 
 	/**
@@ -443,7 +341,7 @@ export class PathfindingGridComponent implements OnInit {
 		})
 
 		this.grid.getCellFor(1, 1).type = CellType.start;
-		this.grid.getCellFor(this.widthGrid - 2, this.heightGrid - 2).type = CellType.end;
+		this.grid.getCellFor(this.width - 2, this.height - 2).type = CellType.end;
 
 		this.state = "not-started";
 	}

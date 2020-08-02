@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
 
 import { InfoDialogComponent } from './info-dialog.component';
 
@@ -8,7 +9,8 @@ import { InfoDialogComponent } from './info-dialog.component';
 		InfoDialogComponent
 	],
 	imports: [
-		CommonModule
+		CommonModule,
+		MatButtonModule
 	],
 	exports: [
 		InfoDialogComponent

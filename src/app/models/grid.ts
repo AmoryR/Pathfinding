@@ -25,6 +25,7 @@ export class Grid {
     get width() : number { return this._width; }
     get height() : number { return this._height; }
     get cells() : Cell[] { return this._cells; }
+    get length() : number { return this._width * this._height; }
 
     // ----------------------------------------------------------------------------
 	// @ Public methods

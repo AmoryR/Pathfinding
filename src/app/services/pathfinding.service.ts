@@ -6,11 +6,17 @@ import { Point } from '../models/point';
 import { DijkstraGrid } from '../models/dijkstra/dijkstra-grid';
 import { DijkstraCell } from '../models/dijkstra/dijkstra-cell';
 import { PathfindingStatus, DijkstraResponse } from '../models/dijkstra/dijkstra-response';
+import { AvailableAlgorithmType } from '../models/algorithm';
+import { PathfindingResponse } from '../models/pathfinding';
 
 @Injectable({
   	providedIn: 'root'
 })
 export class PathfindingService {
+
+	private _selectedAlgorithm = AvailableAlgorithmType.Dijkstra;
+	get selectedAlgorithm() { return this._selectedAlgorithm; }
+	set selectedAlgorithm(value: AvailableAlgorithmType) { this._selectedAlgorithm = value; }
 
 	constructor() { }
 
@@ -19,18 +25,13 @@ export class PathfindingService {
 	// ----------------------------------------------------------------------------
 
 	/**
-	 * Dijkstra properties
+	 * Put this in a service like 'DijkstaService'
+	 * 
+	 * Each algorithm service should implement a class 'AlgoritmService'
+	 * with a method 'startSearching(grid: Grid) : PathfindingResponse' implemented ?
+	 *
+	 * Private methods are added if needed
 	 */
-	dijkstraStepper: Observable<number>;
-	dijkstraResponse: DijkstraResponse;
-	dijkstraSubject = new Subject<DijkstraResponse>();
-
-	/**
-	 * Emit disjkstra response
-	 */
-	private emitDijkstraReponse() {
-		this.dijkstraSubject.next(this.dijkstraResponse);
-	}
 
 	/**
 	 * Get dijkstra solution
@@ -60,12 +61,14 @@ export class PathfindingService {
 
 	/**
 	 * Start dijkstra algorithm
+	 * 
 	 * @param {Grid} grid 
 	 */
-	startDijkstra(grid: Grid) {
+	private startDijkstra(grid: Grid) : PathfindingResponse {
 
 		/* SETUP */
 		var dijkstraGrid = new DijkstraGrid(grid.width, grid.height, grid);
+		var visitedCells: Point[] = [];
 
 		for (var y = 0; y < dijkstraGrid.height; y++) {
 
@@ -81,14 +84,10 @@ export class PathfindingService {
 		let sourceCoordinates = grid.getStartCoordinates();
 		dijkstraGrid.getCellFor(sourceCoordinates.x, sourceCoordinates.y).dist = 0;
 
-		this.dijkstraResponse = new DijkstraResponse(PathfindingStatus.inProgress, dijkstraGrid, []);
-		this.emitDijkstraReponse();
-
 		/* ALGORITHM LOOP */
-		var currentCell = new DijkstraCell();
+		var currentCell = dijkstraGrid.minimunDistanceCell();
 
-		this.dijkstraStepper = interval(5);
-		var step = this.dijkstraStepper.subscribe(() => {
+		while (grid.getCellFor(currentCell.x, currentCell.y).type != "end") {
 
 			// Run one step
 			currentCell = dijkstraGrid.minimunDistanceCell();
@@ -107,24 +106,26 @@ export class PathfindingService {
 			});
 			
 			currentCell.visited = true;
+			visitedCells.push(new Point(currentCell.x, currentCell.y));
+		}
 
-			// Emit updates
-			if (grid.getCellFor(currentCell.x, currentCell.y).type == "end") {
-				this.dijkstraResponse.status = PathfindingStatus.done;
-				this.dijkstraResponse.grid = dijkstraGrid;
-				this.dijkstraResponse.solution = this.getDijkstraSolution(grid, dijkstraGrid);
-				this.emitDijkstraReponse();
+		return new PathfindingResponse(
+			visitedCells,
+			this.getDijkstraSolution(grid, dijkstraGrid)
+		);
+	}
 
-				step.unsubscribe();
-			} else {
-				this.dijkstraResponse.status = PathfindingStatus.inProgress;
-				this.dijkstraResponse.grid = dijkstraGrid;
-				this.dijkstraResponse.solution = [];
-				this.emitDijkstraReponse();
-			}
+	// ----------------------------------------------------------------------------
+	// @ Astar methods
+	// ----------------------------------------------------------------------------
 
-		});
-
+	/**
+	 * Start astar algorithm
+	 * 
+	 * @param {Grid} grid 
+	 */
+	private startAstar(grid: Grid) : PathfindingResponse {
+		return undefined;
 	}
 	  
 	// ----------------------------------------------------------------------------
@@ -134,19 +135,21 @@ export class PathfindingService {
 	/**
 	 * Start algorithm for grid
 	 * 
-	 * @param algorithm 
-	 * @param grid 
+	 * @param grid  
 	 * 
-	 * @returns List of points solved by a pathfinding algorithm
+	 * @returns Pathfing response that contains list of visited and solution cells coordinates
 	 */
-	start(algorithm: string, grid: Grid) {
+	start(grid: Grid) : PathfindingResponse {
 
-		switch (algorithm) {
-			case "dijkstra":
-				this.startDijkstra(grid);
-				break;
-			default: 
-				console.log("Can't find algorithm for name : " + algorithm);
+		switch (this._selectedAlgorithm) {
+
+			case AvailableAlgorithmType.Dijkstra:
+				return this.startDijkstra(grid);
+			case AvailableAlgorithmType.Astar:
+				return this.startAstar(grid);
+			default:
+				console.error("Can't find algorithm for name : " + this._selectedAlgorithm);
+				return undefined;
 		}
 
 	}

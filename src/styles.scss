@@ -1,10 +1,46 @@
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; overflow: hidden;}
+html, body { height: 100%; overflow: hidden; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .center {
     display: flex;
     justify-content: center;
     align-self: center;
+}
+
+/* DIALOG */
+.dialog-wrapper {
+
+    .dialog-header {
+
+        margin-bottom: 24px;
+
+        h1 {
+            margin: 0;
+        }
+        h3 {
+            font-size: 0.9em;
+            color: gray;
+            margin: 0;
+        }
+
+    }
+
+    .dialog-content {
+
+        max-height: 500px;
+        overflow-y: auto;
+        margin-bottom: 24px;
+
+    }
+
+    .dialog-actions {
+
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
 }

@@ -1,2 +1,65 @@
-<toolsbar></toolsbar>
-<pathfinding-grid></pathfinding-grid>
+<!-- <toolsbar></toolsbar>
+ -->
+
+<div id="main-app">
+
+    <div class="top-bar">
+
+        <div>
+            <h1>Pathfinding</h1>
+            <h3>Amory Rouault</h3>
+        </div>
+
+        <button class="information-button" (click)="toggle()">I</button>
+    </div>
+
+    <div class="container">
+        
+        <div id="main-container" class="main-container" [@openClose]="isOpen ? 'open' : 'close'">
+
+            <div id="main-container-block">
+                <pathfinding-grid [width]="width" [height]="height"></pathfinding-grid>
+            </div>
+            
+        </div>
+
+        <div id="configuration-container" class="configuration-container" [@openCloseConfiguration]="isOpen ? 'open' : 'close'">
+            
+            <!-- COMPONENT -->
+            <div class="configuration-div">
+
+                <h2>Configuration</h2>
+
+                <div class="configuration-div-content">
+
+                    <mat-grid-list cols="2" rowHeight="220px">
+                        <mat-grid-tile *ngFor="let algorithm of availableAlgorithms">
+
+                            <div class="algorithm-tile">
+
+                                <div class="algorithm-tile-info">
+                                    <h3>{{algorithm.title}}</h3>
+                                    <p>{{algorithm.description}}</p>
+                                </div>
+
+                                <button (click)="onSelect(algorithm.type)">Select</button>
+
+                            </div>
+
+                        </mat-grid-tile>
+                    </mat-grid-list>
+                    
+                </div>
+
+            </div>
+            <!-- COMPONENT -->
+
+        </div>
+
+    </div>
+
+    <div class="bottom-bar">
+        <button class="start-button" (click)="onStart()">Start</button>
+    </div>
+
+</div>

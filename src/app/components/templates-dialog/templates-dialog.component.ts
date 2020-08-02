@@ -11,7 +11,22 @@ import { CellType } from 'src/app/models/cell';
 })
 export class TemplatesDialogComponent implements OnInit {
 
-	templates: Grid[] = [];
+	templateNames: string[] = [
+		"Template 1",
+		"Template 2",
+		"Template 3",
+		"Template 4",
+		"Template 5",
+		"Template 6"
+	];
+	templates: Grid[] = [
+		new Grid(10, 10),
+		new Grid(10, 10),
+		new Grid(10, 10),
+		new Grid(10, 10),
+		new Grid(10, 10),
+		new Grid(10, 10)
+	];
 
 	constructor(
 		private _dialogRef: MatDialogRef<TemplatesDialogComponent>,
@@ -19,39 +34,22 @@ export class TemplatesDialogComponent implements OnInit {
 
 	ngOnInit() {
 
-		let width = 16;
-		let height = 16;
-
-		let grid1 = new Grid(width, height);
-
-		grid1.getCellFor(0, 0).type = CellType.start;
-		grid1.getCellFor(15, 15).type = CellType.end;
-
-		// Generate
-		for (var x = 2; x < width; x += 2) {
-
-			for (var y = 0; y < height; y++) {
-				grid1.getCellFor(x, y).type = CellType.wall;
-			}
-
-			grid1.getCellFor(x, this.getRandomInt(height)).type = CellType.empty;
-		}
-
-
-		this.templates.push(grid1);
-
 	}
 
-	onSelectTemplate() {
-		this._dialogRef.close(this.templates[0]);
+	/**
+	 * Select
+	 */
+	onSelect(templateName: string) {
+		this._dialogRef.close(
+			this.templates[this.templateNames.indexOf(templateName)]
+		);
 	}
 
+	/**
+	 * Cancel
+	 */
 	onCancel() {
 		this._dialogRef.close();
-	}
-
-	getRandomInt(max) {
-		return Math.floor(Math.random() * Math.floor(max));
 	}
 
 }

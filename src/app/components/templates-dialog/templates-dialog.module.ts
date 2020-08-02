@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
+import { MatGridListModule } from '@angular/material/grid-list';
 
 import { TemplatesDialogComponent } from './templates-dialog.component';
 
@@ -12,7 +13,8 @@ import { TemplatesDialogComponent } from './templates-dialog.component';
 		CommonModule,
 
 		// Material
-		MatButtonModule
+		MatButtonModule,
+		MatGridListModule
 	],
 	exports: [
 		TemplatesDialogComponent
