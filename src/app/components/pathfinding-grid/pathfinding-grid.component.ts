@@ -84,8 +84,8 @@ import { ToolsbarService } from 'src/app/services/toolsbar.service';
 })
 export class PathfindingGridComponent implements OnInit {
 
-	@Input() width: number;
-	@Input() height: number;
+	width: number = 0;
+	height: number = 0;
 
 	/**
 	 * Tools bar subscription
@@ -95,7 +95,7 @@ export class PathfindingGridComponent implements OnInit {
 	showInfoSubscription: Subscription;
 
 	cellSize = 20; // $cell-size
-	grid: Grid;
+	grid: Grid = new Grid(0, 0);
 	gridElementReference: HTMLElement;
 	state: string = ""; // not-started | in-progress | done
 
@@ -116,16 +116,16 @@ export class PathfindingGridComponent implements OnInit {
 		 * Component initialization
 		 */
 
-		if (this.width == undefined || this.height == undefined) {
-			return;
-		}
+		// if (this.width == undefined || this.height == undefined) {
+		// 	return;
+		// }
 		
-		this.grid = new Grid(this.width, this.height);
-		this.grid.getCellFor(5, Math.floor(this.height / 2)).type = CellType.start;
-		this.grid.getCellFor(this.width - 6, Math.floor(this.height / 2)).type = CellType.end;
+		// this.grid = new Grid(this.width, this.height);
+		// this.grid.getCellFor(5, Math.floor(this.height / 2)).type = CellType.start;
+		// this.grid.getCellFor(this.width - 6, Math.floor(this.height / 2)).type = CellType.end;
 
-		this.gridElementReference = document.getElementById("pathfinding-grid");
-		this._renderer.setStyle(this.gridElementReference, "grid-template-columns", "repeat(" + this.width + ", " + this.cellSize + "px)");
+		// this.gridElementReference = document.getElementById("pathfinding-grid");
+		// this._renderer.setStyle(this.gridElementReference, "grid-template-columns", "repeat(" + this.width + ", " + this.cellSize + "px)");
 
 		this.state = "not-started";
 
@@ -135,6 +135,23 @@ export class PathfindingGridComponent implements OnInit {
 	// @ Private methods
 	// ----------------------------------------------------------------------------
 
+	// ----------------------------------------------------------------------------
+	// @ Public methods
+	// ----------------------------------------------------------------------------
+
+	setUpGrid(width: number, height: number) {
+
+		this.width = width;
+		this.height = height;
+
+		this.grid = new Grid(width, height);
+		this.grid.getCellFor(5, Math.floor(height / 2)).type = CellType.start;
+		this.grid.getCellFor(width - 6, Math.floor(height / 2)).type = CellType.end;
+
+		this.gridElementReference = document.getElementById("pathfinding-grid");
+		this._renderer.setStyle(this.gridElementReference, "grid-template-columns", "repeat(" + width + ", " + this.cellSize + "px)");
+
+	}
 
 	// ----------------------------------------------------------------------------
 	// @ Grid methods

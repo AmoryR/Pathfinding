@@ -82,10 +82,35 @@ export class AppComponent implements OnInit {
 
 	ngOnInit() {
 		this.availableAlgorithms = availableAlgorithms;
+		this.mainDivReference = document.getElementById("main-container-block");
+		this.setGridSize();
+	}
 
-		let mainDivReference = document.getElementById("main-container-block");
-		this.width = Math.floor((mainDivReference.getBoundingClientRect().width - this.safetyPadding) / this.cellSize);
-		this.height = Math.floor((mainDivReference.getBoundingClientRect().height- this.safetyPadding) / this.cellSize);
+	mainDivReference: HTMLElement;
+	private setGridSize() {
+
+		if (this.mainDivReference == undefined || this.mainDivReference == null) {
+			this.mainDivReference = document.getElementById("main-container-block");
+			setTimeout(() => { this.setGridSize(); }, 200);
+			return;
+		}
+
+		
+		let height = Math.floor((this.mainDivReference.getBoundingClientRect().height - this.safetyPadding) / this.cellSize);
+
+		console.log(height);
+
+		if (height < 1) {
+			setTimeout(() => { this.setGridSize(); }, 200);
+		} else {
+			this.width = Math.floor((this.mainDivReference.getBoundingClientRect().width - this.safetyPadding) / this.cellSize);
+			this.height = height;
+
+			if (this.pathfindingGridComponent) {
+				this.pathfindingGridComponent.setUpGrid(this.width, this.height);
+			}
+		}
+
 	}
 
 	toggle() {
@@ -93,6 +118,7 @@ export class AppComponent implements OnInit {
 	}
 
 	onStart() {
+		console.log(this.pathfindingGridComponent);
 		if (this.pathfindingGridComponent) {
 			this.pathfindingGridComponent.startPathfindingAlgorithme();
 		}

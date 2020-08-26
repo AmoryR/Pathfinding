@@ -1,4 +1,4 @@
-$content-color: #e4e4e4;
+@import "variables";
 
 #main-app {
 
@@ -24,10 +24,17 @@ $content-color: #e4e4e4;
 
         h1 {
             margin: 0;
+            font-size: 2.2em;
+            background: $gradient-color;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         h3 {
             margin: 0;
+            font-weight: 500;
+            font-size: 1em;
         }
 
         .information-button {
@@ -36,7 +43,7 @@ $content-color: #e4e4e4;
             border: none;
             border-radius: 20px;
 
-            box-shadow: -5px -5px white, 5px 5px black;
+            box-shadow: $neu-shadow;
             background-color: $content-color;
         }
     }
@@ -56,7 +63,7 @@ $content-color: #e4e4e4;
         .main-container {
 
             padding: $container-padding;
-            flex: 1;
+            flex: 1 1 auto;
 
             display: flex;
 
@@ -65,7 +72,7 @@ $content-color: #e4e4e4;
                 flex: 1 1 auto;
 
                 border-radius: 32px;
-                box-shadow: -5px -5px white, 5px 5px black;
+                box-shadow: $neu-shadow;
                 background-color: $content-color;
 
                 display: flex;
@@ -98,7 +105,7 @@ $content-color: #e4e4e4;
                 padding: 32px;
 
                 border-radius: 32px;
-                box-shadow: -5px -5px white, 5px 5px black;
+                box-shadow: $neu-shadow;
                 background-color: $content-color;
 
                 h2 {
@@ -167,7 +174,7 @@ $content-color: #e4e4e4;
                         border: none;
                         border-radius: 32px;
             
-                        box-shadow: -5px -5px white, 5px 5px black;
+                        box-shadow: $neu-shadow;
                         background-color: $content-color;
                     }
 
@@ -194,7 +201,7 @@ $content-color: #e4e4e4;
             border: none;
             border-radius: 32px;
 
-            box-shadow: -5px -5px white, 5px 5px black;
+            box-shadow: $neu-shadow;
             background-color: $content-color;
         }
     }
