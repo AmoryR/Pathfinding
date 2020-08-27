@@ -5,9 +5,11 @@ import { Grid } from '../models/grid';
 import { Point } from '../models/point';
 import { DijkstraGrid } from '../models/dijkstra/dijkstra-grid';
 import { DijkstraCell } from '../models/dijkstra/dijkstra-cell';
-import { PathfindingStatus, DijkstraResponse } from '../models/dijkstra/dijkstra-response';
 import { AvailableAlgorithmType } from '../models/algorithm';
 import { PathfindingResponse } from '../models/pathfinding';
+import { AstarGrid } from '../models/astar/astar-grid';
+import { AstarCell } from '../models/astar/astar-cell';
+import { Cell, CellType } from '../models/cell';
 
 @Injectable({
   	providedIn: 'root'
@@ -23,15 +25,6 @@ export class PathfindingService {
 	// ----------------------------------------------------------------------------
 	// @ Dijkstra methods
 	// ----------------------------------------------------------------------------
-
-	/**
-	 * Put this in a service like 'DijkstaService'
-	 * 
-	 * Each algorithm service should implement a class 'AlgoritmService'
-	 * with a method 'startSearching(grid: Grid) : PathfindingResponse' implemented ?
-	 *
-	 * Private methods are added if needed
-	 */
 
 	/**
 	 * Get dijkstra solution
@@ -56,7 +49,7 @@ export class PathfindingService {
 			dijkstraCell = dijkstraCell.prev;
 		}
 
-		return coordinatesList;
+		return coordinatesList.reverse();
 	}
 
 	/**
@@ -107,6 +100,14 @@ export class PathfindingService {
 			
 			currentCell.visited = true;
 			visitedCells.push(new Point(currentCell.x, currentCell.y));
+
+			if (currentCell.dist == Infinity) {
+				return new PathfindingResponse(
+					visitedCells,
+					[]
+				);
+			}
+
 		}
 
 		return new PathfindingResponse(
@@ -120,13 +121,154 @@ export class PathfindingService {
 	// ----------------------------------------------------------------------------
 
 	/**
+	 * Get astar solution
+	 * 
+	 * @param {Grid} grid 
+	 * @param {AstarGrid} astarGrid 
+	 * 
+	 * @returns Path solution as a list of Point
+	 */
+	private getAstarSolution(grid: Grid, astarGrid: AstarGrid) : Point[] {
+
+		/* GET PATH COORDINATES FROM ASTAR GRID */
+		let endCoordinates = grid.getEndCoordinates();
+
+		let endAstarCell = astarGrid.getCellFor(endCoordinates.x, endCoordinates.y);
+		let coordinatesList: Point[] = [new Point(endAstarCell.x, endAstarCell.y)];
+
+		let astarCell = endAstarCell;
+
+		while (grid.getCellFor(astarCell.x, astarCell.y).type != "start") {
+			coordinatesList.push(new Point(astarCell.prev.x, astarCell.prev.y));
+			astarCell = astarCell.prev;
+		}
+
+		return coordinatesList.reverse();
+	}
+
+	/**
 	 * Start astar algorithm
 	 * 
 	 * @param {Grid} grid 
 	 */
 	private startAstar(grid: Grid) : PathfindingResponse {
-		return undefined;
+
+		let sourceCoordinates: Point = grid.getStartCoordinates();
+		let destinationCoordinates: Point = grid.getEndCoordinates();
+
+		/* SETUP */
+		var astarGrid = new AstarGrid(grid.width, grid.height, grid);
+		var visitedCells: Point[] = [];
+		var openSet: AstarCell[] = [];
+
+		for (var y = 0; y < astarGrid.height; y++) {
+
+			for (var x = 0; x < astarGrid.width; x++) {
+
+				astarGrid.getCellFor(x, y).dist = Infinity;
+				astarGrid.getCellFor(x, y).prev = undefined;
+				astarGrid.getCellFor(x, y).h = Point.distance(new Point(x, y), destinationCoordinates);
+				astarGrid.getCellFor(x, y).destinationDist = astarGrid.getCellFor(x, y).h;
+
+			}
+
+		}
+
+		astarGrid.getCellFor(sourceCoordinates.x, sourceCoordinates.y).dist = 0;
+		openSet.push(JSON.parse(JSON.stringify(astarGrid.getCellFor(sourceCoordinates.x, sourceCoordinates.y))));
+
+		/* ALGORITHM LOOP */
+		var currentCell: AstarCell;
+
+		while (openSet.length != 0) {
+
+			currentCell = this.getAstarMinimumDistanceCell(openSet);
+
+			if (grid.getCellFor(currentCell.x, currentCell.y).type == CellType.end) {
+				return new PathfindingResponse(
+					visitedCells,
+					this.getAstarSolution(grid, astarGrid)
+				);
+			}
+
+			
+			let neighbors = astarGrid.getNeighborsOf(currentCell);
+			
+			neighbors.forEach((neighbour: AstarCell) => {
+				
+				let alt = currentCell.dist + 1;
+
+				if (alt < neighbour.dist) {
+					neighbour.prev = astarGrid.getCellFor(currentCell.x, currentCell.y);
+					neighbour.dist = alt;
+					neighbour.destinationDist = alt + neighbour.h;
+
+					if (!this.doesListIncludeAstarCell(openSet, neighbour)) {
+						openSet.push(
+							JSON.parse(JSON.stringify(neighbour))
+							);
+					}
+				}
+				
+			});
+
+			astarGrid.getCellFor(currentCell.x, currentCell.y).visited = true;
+			visitedCells.push(new Point(astarGrid.getCellFor(currentCell.x, currentCell.y).x, astarGrid.getCellFor(currentCell.x, currentCell.y).y));
+			
+			openSet.splice(openSet.indexOf(currentCell), 1);
+		}
+
+		return new PathfindingResponse(
+			visitedCells,
+			[]
+		);
+
 	}
+
+	/**
+	 * Does list include astar cell 
+	 * 
+	 * @param astarCellList 
+	 * @param astarCell 
+	 * 
+	 * @returns True if the astarCell is included in astarCellList
+	 */
+	private doesListIncludeAstarCell(astarCellList: AstarCell[], astarCell: AstarCell) : boolean {
+
+		var include = false;
+
+		astarCellList.forEach((cell: AstarCell) => {
+			if (cell.x == astarCell.x && cell.y == astarCell.y) {
+				include = true;
+			}
+		});
+
+		return include;
+	}
+
+	/**
+	 * Get astar minimum distance cell from list
+	 * 
+	 * @param {AstarCell[]} list 
+	 * 
+	 * @returns AstarCell with minimum destination distance
+	 */
+	private getAstarMinimumDistanceCell(list: AstarCell[]) : AstarCell {
+
+		var minDistCell = list[0];
+		list.forEach((cell: AstarCell) => {
+
+            if (cell.destinationDist < minDistCell.destinationDist) {
+				minDistCell = cell;
+            }
+            
+		});
+
+		return minDistCell;
+
+	}
+
+	
 	  
 	// ----------------------------------------------------------------------------
 	// @ Public methods

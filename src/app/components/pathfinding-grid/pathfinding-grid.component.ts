@@ -5,14 +5,14 @@ import { Subscription } from 'rxjs';
 import { trigger, transition, style, sequence, group, animate } from '@angular/animations';
 
 import { Grid } from 'src/app/models/grid';
-import { Cell, CellType } from 'src/app/models/cell';
-import { PathfindingStatus, DijkstraResponse } from 'src/app/models/dijkstra/dijkstra-response'; 
+import { Cell, CellType } from 'src/app/models/cell'; 
 import { DijkstraCell } from 'src/app/models/dijkstra/dijkstra-cell';
 import { Point } from 'src/app/models/point';
 import { PathfindingResponse } from 'src/app/models/pathfinding';
 
 import { PathfindingService } from 'src/app/services/pathfinding.service';
 import { ToolsbarService } from 'src/app/services/toolsbar.service';
+import { throwToolbarMixedModesError } from '@angular/material/toolbar';
 
 @Component({
 	selector: 'pathfinding-grid',
@@ -94,7 +94,7 @@ export class PathfindingGridComponent implements OnInit {
 	selectAlgorithmSubscription: Subscription;
 	showInfoSubscription: Subscription;
 
-	cellSize = 20; // $cell-size
+	cellSize = 30; // $cell-size
 	grid: Grid = new Grid(0, 0);
 	gridElementReference: HTMLElement;
 	state: string = ""; // not-started | in-progress | done
@@ -145,8 +145,8 @@ export class PathfindingGridComponent implements OnInit {
 		this.height = height;
 
 		this.grid = new Grid(width, height);
-		this.grid.getCellFor(5, Math.floor(height / 2)).type = CellType.start;
-		this.grid.getCellFor(width - 6, Math.floor(height / 2)).type = CellType.end;
+		this.grid.getCellFor(1, 1).type = CellType.start;
+		this.grid.getCellFor(5, 1).type = CellType.end;
 
 		this.gridElementReference = document.getElementById("pathfinding-grid");
 		this._renderer.setStyle(this.gridElementReference, "grid-template-columns", "repeat(" + width + ", " + this.cellSize + "px)");
@@ -309,22 +309,35 @@ export class PathfindingGridComponent implements OnInit {
 			// Run animation for visited then solution;
 			if (pathfindingResponse.solutionCells.length != 0) {
 
-				for (var i = 0; i < pathfindingResponse.solutionCells.length; i++) {
-					let cell = this.grid.getCellFor(pathfindingResponse.solutionCells[i].x, pathfindingResponse.solutionCells[i].y);
-					if (cell.type != "start" && cell.type != "end") {
-						cell.type = CellType.path;
-					}
-				}
+				this.state = 'in-progress';
 
-				this.state = 'done';
+				this.animateVisitedCells(pathfindingResponse.visitedCells).then(() => {
+					this.animateSolutionCells(pathfindingResponse.solutionCells).then(() => {
+						this.state = 'done';
+					});
+				});
+
+			} else {
+
+				this.state = 'in-progress';
+
+				this.animateVisitedCells(pathfindingResponse.visitedCells).then(() => {
+					this.state = 'done';
+				});
+
 			}
+
+		} else if (this.state == 'in-progress') {
+
+			// Cancel
+
 		} else if (this.state == 'done') {
 			this.grid.cells.forEach((cell: Cell) => {
 				cell.type = CellType.empty;
 			})
 	
 			this.grid.getCellFor(1, 1).type = CellType.start;
-			this.grid.getCellFor(this.width - 2, this.height - 2).type = CellType.end;
+			this.grid.getCellFor(5, 1).type = CellType.end;
 	
 			this.state = "not-started";
 		}
@@ -337,7 +350,29 @@ export class PathfindingGridComponent implements OnInit {
 	 * @param visitedCells 
 	 */
 	animateVisitedCells(visitedCells: Point[]) {
-		console.log("Animate visited: ", visitedCells);
+		
+		return new Promise((resolve) => {
+
+			visitedCells.forEach((position: Point, index: number) => {
+			
+				setTimeout(() => {
+	
+					let cell = this.grid.getCellFor(position.x, position.y);
+	
+					if (cell.type != "start" && cell.type != "end") {
+						cell.type = CellType.visited;
+					}
+
+					if (index == visitedCells.length - 1) {
+						resolve();
+					}
+	
+				}, index * 20);
+	
+			});
+
+		});
+
 	}
 
 	/**
@@ -346,7 +381,30 @@ export class PathfindingGridComponent implements OnInit {
 	 * @param solutionCells 
 	 */
 	animateSolutionCells(solutionCells: Point[]) {
-		console.log("Animate solution: ", solutionCells);
+		
+		return new Promise((resolve) => {
+
+			solutionCells.forEach((position: Point, index: number) => {
+			
+				setTimeout(() => {
+	
+					let cell = this.grid.getCellFor(position.x, position.y);
+	
+					if (cell.type != "start" && cell.type != "end") {
+						cell.type = CellType.path;
+					}
+
+					if (index == solutionCells.length - 1) {
+						resolve();
+					}
+	
+				}, index * 100);
+	
+			});
+
+		});
+		
+
 	}
 
 	/**

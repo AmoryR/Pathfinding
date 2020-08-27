@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
 
 import {
 	trigger,
@@ -65,7 +65,7 @@ export class AppComponent implements OnInit {
 	@ViewChild(PathfindingGridComponent, {static: true}) pathfindingGridComponent: PathfindingGridComponent;
 	
 	isOpen = false;
-	cellSize = 20;
+	cellSize = 30; // $cell-size
 	safetyPadding = 50;
 
 	width = 0;
@@ -86,6 +86,10 @@ export class AppComponent implements OnInit {
 		this.setGridSize();
 	}
 
+	@HostListener('window:resize', ['$event']) onResize(event) {
+		console.warn("Window resize");
+	}
+
 	mainDivReference: HTMLElement;
 	private setGridSize() {
 
@@ -97,8 +101,6 @@ export class AppComponent implements OnInit {
 
 		
 		let height = Math.floor((this.mainDivReference.getBoundingClientRect().height - this.safetyPadding) / this.cellSize);
-
-		console.log(height);
 
 		if (height < 1) {
 			setTimeout(() => { this.setGridSize(); }, 200);
@@ -118,17 +120,29 @@ export class AppComponent implements OnInit {
 	}
 
 	onStart() {
-		console.log(this.pathfindingGridComponent);
 		if (this.pathfindingGridComponent) {
 			this.pathfindingGridComponent.startPathfindingAlgorithme();
 		}
 	}
 
-	onSelect(algorithm: AvailableAlgorithmType) {
+	onSelectAlgorithm(algorithm: AvailableAlgorithmType) {
 		this._pathfindingService.selectedAlgorithm = algorithm;
 	}
 
-	test() {
+	getStartButtonTitle() : string {
+		switch (this.pathfindingGridComponent.state) {
+			case "not-started":
+				return "Start";
+			case "in-progress":
+				return "In progress";
+			case "done":
+				return "Clear";
+			default:
+				return "State error";
+		}
+	}
+
+	getSelectedAlgorithm() : string {
 		return this._pathfindingService.selectedAlgorithm;
 	}
 }

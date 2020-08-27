@@ -43,7 +43,7 @@ export class DijkstraGrid {
 			}
 		});
 
-
+		console.log("cu", cu);
 		return cu;
 	}
 

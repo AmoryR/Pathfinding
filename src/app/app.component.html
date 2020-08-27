@@ -10,7 +10,7 @@
             <h3>Amory Rouault</h3>
         </div>
 
-        <button class="information-button" (click)="toggle()">I</button>
+        <button class="information-button" (click)="toggle()"><span>i</span></button>
     </div>
 
     <div class="container">
@@ -21,6 +21,8 @@
                 <pathfinding-grid></pathfinding-grid>
             </div>
             
+            <p id="selected-algorithm-label">You selected '{{getSelectedAlgorithm()}}' algorithm.</p>
+
         </div>
 
         <div id="configuration-container" class="configuration-container" [@openCloseConfiguration]="isOpen ? 'open' : 'close'">
@@ -35,14 +37,14 @@
                     <mat-grid-list cols="2" rowHeight="220px">
                         <mat-grid-tile *ngFor="let algorithm of availableAlgorithms">
 
-                            <div class="algorithm-tile">
+                            <div class="algorithm-tile" [ngClass]="{'algorithm-tile-selected': algorithm.type == getSelectedAlgorithm()}">
 
                                 <div class="algorithm-tile-info">
                                     <h3>{{algorithm.title}}</h3>
                                     <p>{{algorithm.description}}</p>
                                 </div>
 
-                                <button (click)="onSelect(algorithm.type)">Select</button>
+                                <button (click)="onSelectAlgorithm(algorithm.type)">Select</button>
 
                             </div>
 
@@ -50,6 +52,8 @@
                     </mat-grid-list>
                     
                 </div>
+
+                <button (click)="isOpen = false">Close</button>
 
             </div>
             <!-- COMPONENT -->
@@ -59,7 +63,7 @@
     </div>
 
     <div class="bottom-bar">
-        <button class="start-button" (click)="onStart()">Start</button>
+        <button class="start-button" (click)="onStart()">{{getStartButtonTitle()}}</button>
     </div>
 
 </div>

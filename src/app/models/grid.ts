@@ -1,5 +1,6 @@
 
 import { Cell, CellType } from './cell';
+import { Point } from './point';
 
 export class Grid {
 
@@ -51,14 +52,11 @@ export class Grid {
      * 
      * @retuns Correspondant coordinates
      */
-    private getCoordinatesFor(index: number) : { x: number, y: number } {
+    private getCoordinatesFor(index: number) : Point {
         let x = index % this._width;
         let y = (index - x) / this._width;
 
-        return {
-            x: x,
-            y: y
-        };
+        return new Point(x, y);
     }
 
     /**
@@ -88,12 +86,9 @@ export class Grid {
      * 
      * @returns Start cell coordinates (X,Y) from grid
      */
-    getStartCoordinates() : { x: number, y: number } {
+    getStartCoordinates() : Point {
 
-        let coordinates =  {
-            x: -1,
-            y: -1
-        };
+        let coordinates = new Point(-1, -1);
 
         this._cells.forEach((cell: Cell, index: number) => {
             if (cell.type == CellType.start) {
@@ -109,11 +104,8 @@ export class Grid {
      * 
      * @returns End cell coordinates (X,Y) from grid
      */
-    getEndCoordinates() : { x: number, y: number } {
-        let coordinates =  {
-            x: -1,
-            y: -1
-        };
+    getEndCoordinates() : Point {
+        let coordinates = new Point(-1, -1);
 
         this._cells.forEach((cell: Cell, index: number) => {
             if (cell.type == CellType.end) {
