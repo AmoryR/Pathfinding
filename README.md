@@ -1,27 +1,68 @@
 # Pathfinding
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.3.21.
+— By Amory Rouault —
 
-## Development server
+### Introduction
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+---
 
-## Code scaffolding
+Do something I thought was impossible.
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+For more information, visit my website https://amoryrouault.com/
 
-## Build
+Play now : https://pathfinding.amoryrouault.com/
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+### How to contribute
 
-## Running unit tests
+---
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+If you want to contribute and add a pathfinding algorithm, you must follow those rules.
 
-## Running end-to-end tests
+- Go to 'src/app/services/pathfinding.service.ts'
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+    This is where you write all the logic.
 
-## Further help
+    You must create a function following the template :
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+    ```tsx
+    // ----------------------------------------------------------------------
+    // @ PathfindingName methods
+    // ----------------------------------------------------------------------
+
+    private startPathfindingName(grid: Grid) : PathfindingResponse {
+    	/* SETUP */
+    	var visitedCells: Point[] = [];
+    	var solutionCells: Point[] = [];
+    	// Setup your algorithm here ...
+
+    	/* ALGORITHM LOOP */
+    	// Loop through your algorithm here
+
+    	// IF FOUND SOLUTION
+    	return new PathfindingResponse(visitedCells, solutionCells);
+    	// ELSE
+    	return new PathfindingResponse(visitedCells, []);
+    }
+    ```
+
+    You can create all the functions you want. Make sur they are private.
+
+    If you need models, create them here : 'src/app/models/algorithm-name/...'.
+
+- Add your case for the start(grid: Grid) method in 'pathfinding.service.ts'.
+- Go to 'src/app/models/algorithm.ts'
+    1. Add your algorithm in AvailableAlgorithmType
+    2. Create your algorithm in AvailableAlgorithm by giving a title, a description and a type. Make sur the description is not too long.
+
+### Test configuration
+
+---
+
+Development 
+
+- Angular 8
+
+Tested browsers
+
+- Firefox, Chrome and Safari
+- Safari mobile (You can't use this app on mobile)
