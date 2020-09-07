@@ -1,4 +1,5 @@
-import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
+import { Component, OnInit, ViewChild, HostListener, Renderer2 } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 
 import {
 	trigger,
@@ -12,6 +13,8 @@ import {
 import { PathfindingGridComponent } from './components/pathfinding-grid/pathfinding-grid.component';
 import { PathfindingService } from './services/pathfinding.service';
 import { AvailableAlgorithm, AvailableAlgorithmType, availableAlgorithms } from './models/algorithm';
+
+import { TutorialDialogComponent } from './components/tutorial-dialog/tutorial-dialog.component';
 
 @Component({
 	selector: 'app-root',
@@ -75,12 +78,25 @@ export class AppComponent implements OnInit {
 
 
 	constructor(
+		private _matDialog: MatDialog,
+		private _renderer: Renderer2,
 		private _pathfindingService: PathfindingService
 	) {
 
 	}
 
 	ngOnInit() {
+
+		let userOs = this.getOS();
+		if (userOs == 'iOS' || userOs == 'Android') {
+			this.osNotSupportedMode();
+			return;
+		}
+
+		// const dialogRef = this._matDialog.open(TutorialDialogComponent, {
+		// 	width: '900px'
+		// });
+
 		this.availableAlgorithms = availableAlgorithms;
 		this.mainDivReference = document.getElementById("main-container-block");
 		this.setGridSize();
@@ -88,6 +104,55 @@ export class AppComponent implements OnInit {
 
 	@HostListener('window:resize', ['$event']) onResize(event) {
 		console.warn("Window resize");
+	}
+
+	getOS() {
+		var userAgent = window.navigator.userAgent,
+			platform = window.navigator.platform,
+			macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'],
+			windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'],
+			iosPlatforms = ['iPhone', 'iPad', 'iPod'],
+			os = null;
+	  
+		if (macosPlatforms.indexOf(platform) !== -1) {
+		  os = 'Mac OS';
+		} else if (iosPlatforms.indexOf(platform) !== -1) {
+		  os = 'iOS';
+		} else if (windowsPlatforms.indexOf(platform) !== -1) {
+		  os = 'Windows';
+		} else if (/Android/.test(userAgent)) {
+		  os = 'Android';
+		} else if (!os && /Linux/.test(platform)) {
+		  os = 'Linux';
+		}
+	  
+		return os;
+	}
+
+	osNotSupported = false;
+	private osNotSupportedMode() {
+
+		/* HIDE */
+
+		// Information button
+		var informationButton = document.getElementById("information-button");
+		this._renderer.setStyle(informationButton, "display", "none");
+
+		// Main container
+		var mainContainer = document.getElementById("main-container");
+		this._renderer.setStyle(mainContainer, "display", "none");
+
+		// Configuration container
+		var configurationContainer = document.getElementById("configuration-container");
+		this._renderer.setStyle(configurationContainer, "display", "none");
+
+		// Start button
+		var startButton = document.getElementById("start-button");
+		this._renderer.setStyle(startButton, "display", "none");
+
+		/* SHOW */
+		this.osNotSupported = true;
+
 	}
 
 	mainDivReference: HTMLElement;

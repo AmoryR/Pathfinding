@@ -10,7 +10,7 @@
             <h3>Amory Rouault</h3>
         </div>
 
-        <button class="information-button" (click)="toggle()"><span>i</span></button>
+        <button id="information-button" class="information-button" (click)="toggle()"><span>i</span></button>
     </div>
 
     <div class="container">
@@ -30,11 +30,15 @@
             <!-- COMPONENT -->
             <div class="configuration-div">
 
-                <h2>Configuration</h2>
+                <!-- <h2>Configuration</h2> -->
+                <div class="configuration-div-header">
+                    <h2>Algorithms</h2>
+                    <button (click)="isOpen = false"><mat-icon>navigate_next</mat-icon></button>
+                </div>
 
                 <div class="configuration-div-content">
 
-                    <mat-grid-list cols="2" rowHeight="220px">
+                    <mat-grid-list cols="2" rowHeight="240px">
                         <mat-grid-tile *ngFor="let algorithm of availableAlgorithms">
 
                             <div class="algorithm-tile" [ngClass]="{'algorithm-tile-selected': algorithm.type == getSelectedAlgorithm()}">
@@ -44,7 +48,7 @@
                                     <p>{{algorithm.description}}</p>
                                 </div>
 
-                                <button (click)="onSelectAlgorithm(algorithm.type)">Select</button>
+                                <button class="algorithm-tile-button" (click)="onSelectAlgorithm(algorithm.type)">Select</button>
 
                             </div>
 
@@ -53,17 +57,24 @@
                     
                 </div>
 
-                <button (click)="isOpen = false">Close</button>
-
             </div>
             <!-- COMPONENT -->
 
         </div>
 
+        <div class="os-not-supported" *ngIf="osNotSupported">
+
+            <h1>Unfortunately <span>'{{getOS()}}'</span> is not supported!</h1>
+
+            <h3>Please, use a computer.</h3>
+
+            <p>You can visit <a href="https://amoryrouault.com" target="_blank">amoryrouault.com</a> to discover my projects.</p>
+        </div>
+
     </div>
 
     <div class="bottom-bar">
-        <button class="start-button" (click)="onStart()">{{getStartButtonTitle()}}</button>
+        <button id="start-button" class="start-button" (click)="onStart()">{{getStartButtonTitle()}}</button>
     </div>
 
 </div>

@@ -12,7 +12,6 @@ import { PathfindingResponse } from 'src/app/models/pathfinding';
 
 import { PathfindingService } from 'src/app/services/pathfinding.service';
 import { ToolsbarService } from 'src/app/services/toolsbar.service';
-import { throwToolbarMixedModesError } from '@angular/material/toolbar';
 
 @Component({
 	selector: 'pathfinding-grid',
@@ -39,14 +38,8 @@ import { throwToolbarMixedModesError } from '@angular/material/toolbar';
 		// Path
 		trigger('pathAnimation', [
 			transition(':enter', [
-				style({ opacity: 0 }),
-				  
-			  	// sequence([
-					// animate('100ms', style({ transform: 'scale(1.2)' })),
-					// animate('400ms', style({ transform: 'scale(0.8)' })),
-					animate('1000ms', style({ opacity: 1 }))
-					// animate('50ms', style({ opacity: 1 }))
-				// ])
+				style({ transform: 'scale(1.2)' }),
+				animate('600ms ease', style({ transform: 'scale(1)' }))
 			]),
 			transition(':leave', [
 			  	animate('200ms', style({ transform: 'scale(0)' }))
@@ -71,13 +64,16 @@ import { throwToolbarMixedModesError } from '@angular/material/toolbar';
 		// Visited
 		trigger('visitedAnimation', [
 			transition(':enter', [
-				style({ transform: 'scale(0)', background: "blue" }),
+				style({ transform: 'scale(0)', background: "#6d99a2" }),
 
 				sequence([
-					animate('1000ms', style({ transform: 'scale(1.1)', background: "green" })),
-					animate('500ms', style({ transform: 'scale(1)', background: "cyan" }))
+					animate('1000ms ease', style({ transform: 'scale(1.1)', background: "#02808f" })),
+					animate('500ms ease', style({ transform: 'scale(1)', background: "#124c60" }))
 				])
 
+			]),
+			transition(':leave', [
+			  	animate('200ms', style({ transform: 'scale(0)' }))
 			])
 		])
 	]
@@ -145,8 +141,8 @@ export class PathfindingGridComponent implements OnInit {
 		this.height = height;
 
 		this.grid = new Grid(width, height);
-		this.grid.getCellFor(1, 1).type = CellType.start;
-		this.grid.getCellFor(5, 1).type = CellType.end;
+		this.grid.getCellFor(10, Math.floor(this.height / 2)).type = CellType.start;
+		this.grid.getCellFor(this.width - 11, Math.floor(this.height / 2)).type = CellType.end;
 
 		this.gridElementReference = document.getElementById("pathfinding-grid");
 		this._renderer.setStyle(this.gridElementReference, "grid-template-columns", "repeat(" + width + ", " + this.cellSize + "px)");
@@ -240,6 +236,10 @@ export class PathfindingGridComponent implements OnInit {
 		// Start selected
 		if (this.startSelected) {
 
+			if (cell.type == CellType.end) {
+				return;
+			}
+
 			let previousCell = this.grid.getCellFor(this.previousStartPosition.x, this.previousStartPosition.y);
 			previousCell.type = CellType.empty;
 
@@ -252,6 +252,10 @@ export class PathfindingGridComponent implements OnInit {
 
 		// End selected
 		if (this.endSelected) {
+
+			if (cell.type == CellType.start) {
+				return;
+			}
 
 			let previousCell = this.grid.getCellFor(this.previousEndPosition.x, this.previousEndPosition.y);
 			previousCell.type = CellType.empty;
@@ -332,14 +336,7 @@ export class PathfindingGridComponent implements OnInit {
 			// Cancel
 
 		} else if (this.state == 'done') {
-			this.grid.cells.forEach((cell: Cell) => {
-				cell.type = CellType.empty;
-			})
-	
-			this.grid.getCellFor(1, 1).type = CellType.start;
-			this.grid.getCellFor(5, 1).type = CellType.end;
-	
-			this.state = "not-started";
+			this.onClearGrid();
 		}
 
 	}
@@ -415,8 +412,8 @@ export class PathfindingGridComponent implements OnInit {
 			cell.type = CellType.empty;
 		})
 
-		this.grid.getCellFor(1, 1).type = CellType.start;
-		this.grid.getCellFor(this.width - 2, this.height - 2).type = CellType.end;
+		this.grid.getCellFor(10, Math.floor(this.height / 2)).type = CellType.start;
+		this.grid.getCellFor(this.width - 11, Math.floor(this.height / 2)).type = CellType.end;
 
 		this.state = "not-started";
 	}

@@ -99,7 +99,6 @@ export class PathfindingService {
 			});
 			
 			currentCell.visited = true;
-			visitedCells.push(new Point(currentCell.x, currentCell.y));
 
 			if (currentCell.dist == Infinity) {
 				return new PathfindingResponse(
@@ -107,6 +106,8 @@ export class PathfindingService {
 					[]
 				);
 			}
+
+			visitedCells.push(new Point(currentCell.x, currentCell.y));
 
 		}
 
