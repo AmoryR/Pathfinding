@@ -66,3 +66,12 @@ Tested browsers
 
 - Firefox, Chrome and Safari
 - Safari mobile (You can't use this app on mobile)
+
+### Start the project
+
+---
+
+```bash
+$ npm install
+$ npm start | ng serve
+```
